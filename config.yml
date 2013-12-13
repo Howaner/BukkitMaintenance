@@ -1,6 +1,0 @@
-BindPort: 25565
-BindAddress: 0.0.0.0
-Version: Wartung
-KickMessage: "\u00a74Wartung! Kommen sie sp\u00e4ter wieder!"
-MultilineMotd: "Wartungsmodus!\nBald k\u00f6nnen sie wieder rein!"
-Motd: "Wir sind bald wieder f\u00fcr sie da!"
