@@ -22,7 +22,7 @@ public class FavIcon {
 				e.printStackTrace(); 
 			}
 			
-			FavIcon = ImageUtils.encodeToString(image, "png");
+			FavIcon = "data:image/png;base64," + ImageUtils.encodeToString(image, "png");
 		}
 	}
 
