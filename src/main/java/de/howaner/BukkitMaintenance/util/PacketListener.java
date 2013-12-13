@@ -2,9 +2,11 @@ package de.howaner.BukkitMaintenance.util;
 
 import de.howaner.BukkitMaintenance.MainServer;
 import de.howaner.BukkitMaintenance.config.Config;
+import de.howaner.BukkitMaintenance.config.FavIcon;
 import de.howaner.BukkitMaintenance.json.DisconnectJSON;
 import de.howaner.BukkitMaintenance.json.StatusResponseJSON;
 import de.howaner.BukkitMaintenance.packet.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -120,10 +122,19 @@ public class PacketListener extends Thread {
 			StatusResponseJSON.Description description = new StatusResponseJSON.Description();
 			description.setText(Config.MULTILINE_MOTD);
 			
+			String favicon = null;
+			if (!FavIcon.FavIcon.isEmpty()) {
+				favicon = "data:image/png;base64," + FavIcon.FavIcon;
+			} else {
+				favicon = null;
+			}
+			
 			StatusResponseJSON json = new StatusResponseJSON();
 			json.setVersion(version);
 			json.setPlayers(players);
 			json.setDescription(description);
+			json.setFavIcon(favicon);
+			
 			
 			Packet0StatusResponse statusPacket = new Packet0StatusResponse();
 			statusPacket.a = MainServer.instance.gson.toJson(json);

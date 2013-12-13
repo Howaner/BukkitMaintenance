@@ -10,6 +10,7 @@ public class StatusResponseJSON {
 	private Version version;
 	private Players players;
 	private Description description;
+	private String favicon;
 	
 	public Version getVersion() {
 		return this.version;
@@ -21,6 +22,10 @@ public class StatusResponseJSON {
 	
 	public Description getDescription() {
 		return this.description;
+	}
+	
+	public String getFavIcon() {
+		return this.favicon;
 	}
 	
 	public void setVersion(Version version) {
@@ -35,6 +40,9 @@ public class StatusResponseJSON {
 		this.description = description;
 	}
 	
+	public void setFavIcon(String favicon) {
+		this.favicon = favicon;
+	}
 	
 	
 	public static class Description {

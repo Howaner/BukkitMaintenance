@@ -1,8 +1,11 @@
 package de.howaner.BukkitMaintenance;
 
 import com.google.gson.Gson;
+
 import de.howaner.BukkitMaintenance.config.Config;
+import de.howaner.BukkitMaintenance.config.FavIcon;
 import de.howaner.BukkitMaintenance.util.PacketListener;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -25,6 +28,7 @@ public class MainServer {
 		
 		if (!new File("config.yml").exists()) Config.saveConfig();
 		Config.loadConfig();
+		FavIcon.loadFavIcon();
 		
 		this.thread = new PacketListener(this);
 		this.thread.start();
