@@ -2,7 +2,6 @@ package de.howaner.BukkitMaintenance.util;
 
 import de.howaner.BukkitMaintenance.MainServer;
 import de.howaner.BukkitMaintenance.config.Config;
-import de.howaner.BukkitMaintenance.config.FavIcon;
 import de.howaner.BukkitMaintenance.json.DisconnectJSON;
 import de.howaner.BukkitMaintenance.json.StatusResponseJSON;
 import de.howaner.BukkitMaintenance.packet.*;
@@ -44,7 +43,7 @@ public class PacketListener extends Thread {
 	@Override
 	public void run() {
 		try {
-			ServerSocket server = new ServerSocket(25565, 50, InetAddress.getByName("0.0.0.0"));
+			ServerSocket server = new ServerSocket(Config.BIND_PORT, 50, InetAddress.getByName(Config.BIND_ADDRESS));
 			
 			Socket socket;
 			while ((socket = server.accept()) != null) {
@@ -88,8 +87,6 @@ public class PacketListener extends Thread {
 	}
 	
 	public void a(Packet0Handshake packet, DataInputStream reader, DataOutputStream writer) throws Exception {
-		System.out.println("Received 1.7 Handshake!");
-		
 		if (packet.d == 2) {
 			DisconnectJSON json = new DisconnectJSON();
 			json.setText(Config.KICK_MESSAGE);
@@ -100,23 +97,23 @@ public class PacketListener extends Thread {
 			Packet0LoginStart loginPacket = new Packet0LoginStart();
 			loginPacket.read(reader);
 			
+			System.out.println("Received Login Packet from " + loginPacket.a + "!");
 			this.send17Packet(writer, dPacket);
 		}
 		
 		else if (packet.d == 1) {
+			System.out.println("Received Status Packet!");
 			Varint.readVarInt(reader); //Packet Length
-			if (Varint.readVarInt(reader) != 0x00) {
-				System.out.println("The Client doesn't send a Status Request Packet!");
-				return;
-			}
+			if (Varint.readVarInt(reader) != 0x00)
+				throw new Exception("The Client don't send a Status Request Packet!");
 			
 			StatusResponseJSON.Version version = new StatusResponseJSON.Version();
 			version.setName(Config.VERSION_NAME);
 			version.setProtocol(0);
 			
 			StatusResponseJSON.Players players = new StatusResponseJSON.Players();
-			players.setOnline(Config.ONLINE_PLAYERS);
-			players.setMax(Config.MAX_PLAYERS);
+			players.setOnline(0);
+			players.setMax(0);
 			players.setSample(new ArrayList<StatusResponseJSON.SamplePlayer>());
 			
 			StatusResponseJSON.Description description = new StatusResponseJSON.Description();
@@ -126,7 +123,7 @@ public class PacketListener extends Thread {
 			json.setVersion(version);
 			json.setPlayers(players);
 			json.setDescription(description);
-			json.setFavIcon((FavIcon.FavIcon.isEmpty()) ? null : FavIcon.FavIcon);
+			json.setFavIcon(server.getIcon());
 			
 			Packet0StatusResponse statusPacket = new Packet0StatusResponse();
 			statusPacket.a = MainServer.instance.gson.toJson(json);
@@ -135,10 +132,7 @@ public class PacketListener extends Thread {
 			
 			//Ping Time Packets
 			Varint.readVarInt(reader); //Packet Size
-			if (Varint.readVarInt(reader) != 0x01) {
-				System.out.println("Client doesn't send Ping Packet!");
-				return;
-			}
+			if (Varint.readVarInt(reader) != 0x01) return;
 			Packet1Ping pingPacket = new Packet1Ping();
 			pingPacket.read(reader);
 			this.send17Packet(writer, pingPacket);
@@ -146,33 +140,29 @@ public class PacketListener extends Thread {
 	}
 	
 	public void a(Packet2Handshake packet, DataOutputStream writer) throws Exception {
+		System.out.println("Received Login Packet!");
 		Packet255Disconnect disconnectPacket = (Packet255Disconnect) getNewPacket(0xFF);
 		disconnectPacket.a = Config.KICK_MESSAGE;
 		this.sendPacket(writer, disconnectPacket);
 	}
 	
 	public void a(Packet254ServerPing packet, DataInputStream reader, DataOutputStream writer) throws Exception {
-		if (packet.a != (byte)1) { //Magical Byte Check
-			System.out.println("Magic Byte isn't 1!");
-			return;
-		}
+		System.out.println("Received Status Packet!");
+		if (packet.a != (byte)1) //Magical Byte Check
+			throw new Exception("Magic Byte isn't 1!");
 		
 		//Is the next Packet a Pluginmessage?
-		if (reader.readUnsignedByte() != 0xFA) {
-			System.out.println("The received Packet is not a Pluginmessage.");
-			return;
-		}
+		if (reader.readUnsignedByte() != 0xFA)
+			throw new Exception("The received Packet isn't a Plugin Message.");
 		
 		Packet250PluginMessage pluginPacket = (Packet250PluginMessage) getNewPacket(0xFA);
 		pluginPacket.read(reader);
 		
-		if (!pluginPacket.a.equals("MC|PingHost")) {
-			System.out.println("Received bad channel: " + pluginPacket.a);
-			return;
-		}
+		if (!pluginPacket.a.equals("MC|PingHost"))
+			throw new Exception("Bad channel: " + pluginPacket.a);
 		
 		Packet255Disconnect responsePacket = new Packet255Disconnect();
-		responsePacket.a = PingUtil.createPingString(0, Config.VERSION_NAME, Config.MOTD, Config.ONLINE_PLAYERS, Config.MAX_PLAYERS);
+		responsePacket.a = PingUtil.createPingString(0, Config.VERSION_NAME, Config.MOTD, 0, 0);
 		
 		this.sendPacket(writer, responsePacket);
 	}

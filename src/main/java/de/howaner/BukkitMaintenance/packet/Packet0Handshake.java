@@ -12,7 +12,7 @@ public class Packet0Handshake extends Packet {
 	public int a; //Protocol Version
 	public String b; //Server Address
 	public int c; //Server Port
-	public int d; //Next State ( 1 = Status | 2 = Login)
+	public int d; //Next State ( 1 = Status | 2 = Login )
 	
 	@Override
 	public void read(DataInputStream stream) throws Exception {
