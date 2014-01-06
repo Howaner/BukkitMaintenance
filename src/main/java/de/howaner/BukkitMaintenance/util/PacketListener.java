@@ -50,11 +50,11 @@ public class PacketListener extends Thread {
 				try {
 					DataInputStream reader = new DataInputStream(socket.getInputStream());
 
-					int packetID = reader.readUnsignedByte();
-					if (packetID == 15 || packetID == 21)
-						packetID = Varint.readVarInt(reader);
-
+					int packetID = Varint.readVarInt(reader);
 					Packet packet = getNewPacket(packetID);
+					if (packet == null)
+						packet = getNewPacket(Varint.readVarInt(reader));
+					
 					if (packet == null) {
 						System.out.println("Unkown Packet ID received: " + packetID);
 						reader.close();

@@ -20,7 +20,7 @@ public class MainServer {
 	private String icon = "";
 	
 	public static void main(String[] args) {
-		System.out.println("Started BukkitMaintenance v1.1!");
+		System.out.println("Started BukkitMaintenance v1.2!");
 		instance = new MainServer();
 		instance.load();
 	}

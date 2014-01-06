@@ -9,6 +9,7 @@ public class Packet254ServerPing extends Packet {
 	@Override
 	public void read(DataInputStream stream) throws Exception {
 		this.a = stream.readByte();
+		this.a = (byte) 1;
 	}
 
 	@Override
